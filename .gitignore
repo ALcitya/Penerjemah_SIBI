@@ -1,0 +1,8 @@
+# mengabaikan folder data
+data/
+data/processed/
+data/raw/
+# mengabaikan folder model
+models/
+# mengabaikan file rahasia
+.env

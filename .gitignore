@@ -1,8 +1,6 @@
 # mengabaikan folder data
 data/
-data/processed/
-data/raw/
-# mengabaikan folder model
-models/
+data/processed/rgb
 # mengabaikan file rahasia
 .env
+yolov8n.pt

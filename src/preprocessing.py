@@ -7,8 +7,6 @@ output_root = '../data/processed'
 num_frames_to_save = 20
 target_size = (128,128)
 
-os.makedirs(os.path.join(output_root, 'rgb'), exist_ok=True)
-os.makedirs(os.path.join(output_root, 'grayscale'), exist_ok=True)
 
 for label in os.listdir(root_raw_dir):
 
@@ -19,15 +17,13 @@ for label in os.listdir(root_raw_dir):
 
     print(f"Processing label: {label}")
 
-    rgb_label_dir = os.path.join(output_root, 'rgb', label)
-    gray_label_dir = os.path.join(output_root, 'grayscale', label)
+    output_label_dir = os.path.join(output_root, label)
 
-    os.makedirs(rgb_label_dir, exist_ok=True)
-    os.makedirs(gray_label_dir, exist_ok=True)
+    os.makedirs(output_label_dir, exist_ok=True)
 
     for video_name in os.listdir(word_path):
 
-        if not video_name.lower().endswith('.webm'):
+        if not video_name.lower().endswith('.webm') and not video_name.lower().endswith('.mp4'):
             continue
 
         video_full_path = os.path.join(word_path, video_name)
@@ -58,20 +54,21 @@ for label in os.listdir(root_raw_dir):
                 break
 
             frame_res = cv2.resize(frame, target_size)
-            # crop bagian atas
+
             h, w = frame_res.shape[:2]
-            crop_top = int(h * 0.25)
-            frame_crop = frame_res[crop_top:h, 0:w]
+            # crop hanya yang berkestensi .webm
+            if video_name.lower().endswith('.webm'):
+              crop_top = int(h * 0.25)
+              frame_crop = frame_res[crop_top:h, 0:w]
+            else:
+              frame_crop = frame_res
 
             # resize lagi agar tetap 128x128
             frame_crop = cv2.resize(frame_crop, target_size)
 
+            # Save RGB frame
             rgb_name = f"{video_base_name}_f{i:02d}.jpg"
-            cv2.imwrite(os.path.join(rgb_label_dir, rgb_name), frame_crop)
-
-            gray = cv2.cvtColor(frame_crop, cv2.COLOR_BGR2GRAY)
-            gray_name = f"{video_base_name}_f{i:02d}.jpg"
-            cv2.imwrite(os.path.join(gray_label_dir, gray_name), gray)
+            cv2.imwrite(os.path.join(output_label_dir, rgb_name), frame_crop)
 
         cap.release()
 

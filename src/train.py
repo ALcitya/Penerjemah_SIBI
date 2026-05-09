@@ -1,13 +1,13 @@
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, TimeDistributed, Flatten, LSTM, Dense, Dropout
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-
+import os
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, LSTM, Dense, Dropout, TimeDistributed
 # 1. Load data
-X = np.load('../data/prep/grayscale/X_gray.npy')
-Y = np.load('../data/prep/grayscale/Y_gray.npy')
+X = np.load('../data/prep/rgb/X_rgb.npy')
+Y = np.load('../data/prep/rgb/Y_rgb.npy')
 
 # Normalisasi
 X = X.astype('float32') / 255.0
@@ -41,18 +41,18 @@ print("Shape input untuk model:", X.shape[1:])
 
 # 2. Bangun model CNN-LSTM
 model = Sequential([
-    
+
     TimeDistributed(
         Conv2D(32, (3,3), activation='relu'),
         input_shape=X.shape[1:]
     ),
     TimeDistributed(MaxPooling2D((2,2))),
-    
+
     TimeDistributed(Conv2D(64, (3,3), activation='relu')),
     TimeDistributed(MaxPooling2D((2,2))),
-    
+
     TimeDistributed(Flatten()),
-    
+
     # LSTM untuk sequence frame
     LSTM(64, return_sequences=False),
 
@@ -103,4 +103,5 @@ plt.title('Loss')
 plt.show()
 
 # 7. Simpan model
-model.save('../models/sibi_model_gray.keras')
+os.makedirs('models', exist_ok=True)
+model.save('../models/sibi_model_rgb.keras')

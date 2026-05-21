@@ -9,7 +9,7 @@ def get_name_video(folder, prefix="video_gerakan", ext=".mp4"):
   for f in files:
     if f.startswith(prefix) and f.endswith(ext):
       try:
-        num = int(f.replace(prefix, "-", "").replace(ext, ""))
+        num = int(f.replace(ext, "").split("_")[-1])
         number.append(num)
       except:
         pass
@@ -18,7 +18,7 @@ def get_name_video(folder, prefix="video_gerakan", ext=".mp4"):
 # inisiasi kamera
 cap = cv2.VideoCapture(0)
 # output directory
-output_dir = './data/videos'
+output_dir = '../data/videos'
 os.makedirs(output_dir, exist_ok=True)
 path_video = get_name_video(output_dir)
 # mendefinisikan codec
@@ -35,7 +35,7 @@ while (cap.isOpened()):
     # tulis frame kedalam file input
     output_video.write(frame)
     #tampilkan video
-    cv2.imshow('merekam video', frame)
+    cv2.imshow('Merekam video', frame)
     key = cv2.waitKey(1)
     # menyimpan video
     if key & 0xFF == ord('s'):

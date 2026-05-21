@@ -1,0 +1,65 @@
+html,body{
+    margin:0;
+    padding: 0;
+}
+body{
+    font-family : Arial;
+    background: #f4f4f4;
+}
+.container{
+    width: auto;
+    margin: 50px auto;
+    background : white;
+    padding: 30px;
+    border-radius: 10px;
+    width:90%;
+}
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+nav a{
+    text-decoration: none;
+    font-size:large;
+}
+.content{
+    background-image: url(../image/bocil2.jpg);
+    background-size: cover;
+    background-repeat:no-repeat;
+    background-position:center top;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+.title-box{
+    margin-top:60px;
+}
+.text h1{
+    font-size: xx-large;
+}
+.text p{
+    color:#f4f4f4;
+    font-size: large;
+}
+button{
+    padding : 10px;
+    margin-top: 10px;
+}
+.input{
+    border:none;
+}
+form button{
+    border-radius: 10%;
+    border: none;
+}
+ .prediksi{
+    padding: 10px;
+}
+.result-box{
+    margin:40px 0;
+    background: #d0cdcd;
+    padding: 15px;
+    width: 80%;
+}

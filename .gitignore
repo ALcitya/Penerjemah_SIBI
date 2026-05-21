@@ -1,6 +1,9 @@
 # mengabaikan folder data
-data/
-data/processed/rgb
+data/processed
+data/raw
+data/augmented
+data/prep
+data/videos
+venv
 # mengabaikan file rahasia
 .env
-yolov8n.pt

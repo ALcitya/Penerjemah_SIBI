@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from hand_detection import crop_hand_from_frame
+from src.hand_detection import crop_hand_from_frame
 
 def extract_frames(video_path):
     cap = cv2.VideoCapture(video_path)

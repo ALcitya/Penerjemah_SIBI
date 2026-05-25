@@ -25,10 +25,11 @@ def crop_hand_from_frame(frame, target_size=(128,128)):
                 x_list.append(int(lm.x * w))
                 y_list.append(int(lm.y * h))
             # bounding box
-            x_min = max(min(x_list) - 20, 0)
-            y_min = max(min(y_list) - 20, 0)
-            x_max = min(max(x_list) + 20, w)
-            y_max = min(max(y_list) + 20, h)
+            padding = 20
+            x_min = max(min(x_list) - padding, 0)
+            y_min = max(min(y_list) - padding, 0)
+            x_max = min(max(x_list) + padding, w)
+            y_max = min(max(y_list) + padding, h)
 
             # crop hand
             cropped_hand = frame [y_min:y_max, x_min:x_max]

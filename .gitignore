@@ -4,6 +4,7 @@ data/raw
 data/augmented
 data/prep
 data/videos
+data/uploads
 venv
 # mengabaikan file rahasia
 .env

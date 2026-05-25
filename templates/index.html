@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Penerjemah Bahasa Isyarat</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <h1>SIBI</h1>
+        <a class="home" href="#">Home</a>
+        <a class="collection" href="collection.html">Collection</a>
+        <a class="contact" href="contact.html">Contact</a>
+        <div class="button">
+            <!-- <button class="login">Login</button>
+            <button class="signup">Sign Up</button> -->
+        </div>
+    </nav>
+<div class="content">
+        <div class="title-box">
+                <div class="text">
+                    <h1>Penerjemah Bahasa Isyarat SIBI</h1>
+                    <p>Otomatis menerjemahkan video bahasa isyarat menjadi kalimat</p>
+                </div>
+                <div class="camera-control">
+                <button id="mulai" type="button">
+                    <i class="fa-solid fa-play fa-beat" style="color: rgb(116, 192, 252);"></i> 
+                </button>
+                <button id="stop" type="button">
+                    <i class="fa-solid fa-stop fa-beat-fade" style="color: rgb(240, 0, 0);"></i>
+                </button>
+                </div>
+                <b>Rekam Video Bahasa Isyarat</b>
+                <div class="camera-box">
+                    <video id="preview" autoplay muted width="400"></video>
+                </div>
+            </div>
+        </div>
+        <div class="result-box">
+            <h2>Hasil Prediksi:</h2>
+            <p id="hasil-prediksi"></p>
+        </div>
+</div>
+</div>
+<script>
+    let mediaRecorder
+    let recordedchunks=[]
+    let stream=null
+
+    const preview =document.getElementById("preview")
+    async function mulaiRekam(){
+        preview.style.display="block"
+        document.getElementById("mulai").style.display="none"
+
+        recordedchunks=[]
+        stream= await navigator.mediaDevices.getUserMedia({video:true})
+        preview.srcObject=stream
+        mediaRecorder=new MediaRecorder(stream)
+        mediaRecorder.ondataavailable=event=>{
+            if(event.data.size>0){
+                recordedchunks.push(event.data)}
+        }
+        mediaRecorder.onstop=async()=>{
+            const blob = new Blob(recordedchunks,{type:"video/webm"})
+            const formData = new FormData()
+            formData.append("video",blob,"rekaman.webm")
+            document.getElementById("hasil-prediksi").textContent="Sedang memprediksi ..."
+            const response = await fetch("/record_predict",{
+                method:"POST",
+                body:formData})
+            console.log("Status:", response.status)
+            const data = await response.json()
+            console.log("Data:", data)
+            const hasil = document.getElementById("hasil-prediksi")
+            hasil.textContent = data.prediction
+          }
+        mediaRecorder.start()
+    }
+    function stopRekam(){
+        document.getElementById("stop").style.display="block"
+        preview.style.display="none"
+
+        if(mediaRecorder && mediaRecorder.state !=="inactive"){
+            mediaRecorder.stop()
+        }
+        if(stream){
+            stream.getTracks().forEach(track=>track.stop())
+            preview.srcObject=null
+            preview.style.display="none"
+        }
+    }
+    document.getElementById("mulai").onclick=mulaiRekam
+    document.getElementById("stop").onclick=stopRekam
+</script>
+</body>
+</html>

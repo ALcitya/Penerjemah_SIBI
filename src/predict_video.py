@@ -10,12 +10,12 @@ warnings.filterwarnings("ignore")
 import numpy as np
 from collections import Counter
 from tensorflow.keras.models import load_model
-from extract_frames import extract_frames
-from translate_sentences import SentenceTranslator
+from src.extract_frames import extract_frames
+from src.translate_sentences import SentenceTranslator
 
 
 # CONFIG
-VIDEO_PATH = "./data/videos/video_gerakan_2.mp4"
+VIDEO_PATH = "./data/uploads/video_gerakan_2.mp4"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
 
@@ -45,9 +45,11 @@ def sliding_window(frames, seq_len=20, step=5):
 # POST PROCESSING
 def remove_consecutive_duplicates(words):
     result = []
+    seen = set()
     for w in words:
-        if not result or result[-1] != w:
+        if w not in seen:
             result.append(w)
+            seen.add(w)
     return result
 
 def keep_frequent_words(words, min_count=2):
@@ -56,17 +58,47 @@ def keep_frequent_words(words, min_count=2):
         w for w in words
         if counter[w] >= min_count
     ]
+def remove_duplicates(words):
+
+    result = []
+    seen = set()
+
+    for word in words:
+
+        if word not in seen:
+
+            result.append(word)
+            seen.add(word)
+
+    return result
 
 def clean_sentence(words):
-    words = remove_consecutive_duplicates(words)
-    words = keep_frequent_words(words, min_count=2)
+
+    # filter kata yang cukup sering muncul
+    words = keep_frequent_words(
+        words,
+        min_count=2
+    )
+
+    # hapus kata berurutan
+    words = remove_consecutive_duplicates(
+        words
+    )
+
+    # hapus kata yang pernah muncul
+    words = remove_duplicates(
+        words
+    )
+
     return words
+
 
 # PREDICTION
 def predict_sequences(sequences):
     results = []
     for i, seq in enumerate(sequences):
         seq = np.array(seq, dtype=np.float32)
+        seq = seq / 255.0
         seq = np.expand_dims(seq, axis=0)
         pred = model.predict(seq, verbose=0)
         confidence = float(np.max(pred))
@@ -127,10 +159,24 @@ def predict_video_file(video_path):
     hasil_kata = predict_sequences(sequences)
     if len(hasil_kata) == 0:
         return "tidak ada prediksi"
+    
     hasil_bersih = clean_sentence(hasil_kata)
+    hasil_bersih = translator.combine_affixes(hasil_bersih)
+    translator.reset()
+    
+    for word in hasil_bersih:
+        translator.add_word(word)
+        
     kalimat = " ".join(hasil_bersih)
+    print("hasil_kata:", hasil_kata)
+
+    hasil_bersih = clean_sentence(
+    hasil_kata
+    )
+
+    print("hasil_bersih:", hasil_bersih)
     return kalimat
-print("PROGRAM BERHASIL DIJALANKAN")
+
 # RUN
 if __name__ == "__main__":
     main()

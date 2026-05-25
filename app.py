@@ -1,40 +1,48 @@
-from flask import Flask, render_template, request 
+from flask import Flask, jsonify, render_template, request
 import os
-import sys
-# tambahkan src ke path
-sys.path.append("src")
-from predict_video import predict_video_file
+
+from src.predict_video import predict_video_file
 
 app = Flask(__name__)
 
-upload_folder = 'uploads'
-os.makedirs(upload_folder, exits_ok=True)
-app.config['upload_folder'] = upload_folder
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "data", "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route('/', methods=['GET','POST'])
-def index():
-    hasil = None
-    if request.method == 'POST':
-        if 'video' not in request.files:
-            hasil = 'File video tidak ditemukan'
-            return render_template('index.html', hasil=hasil)
-        file = request.files['video']
-        
-        if file.filename == '':
-            hasil = 'Belum memilih file video'
-            return render_template('index.html', hasil=hasil)
-        
-        video_path = os.path.join(
-            app.config['upload_folder'],
-            file.filename
+@app.route('/', methods=['GET'])
+def home():
+    return render_template("index.html", hasil="")
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    file = request.files.get("video")
+    if not file:
+        return render_template(
+            "index.html",
+            hasil="Video tidak ditemukan"
         )
-        file.save(video_path)
-        
-        try:
-            hasil = predict_video_file(video_path)
-        except Exception as e:
-            hasil = f"error :{str(e)}"
-            
-    return render_template('index.html', hasil=hasil)
+    path = os.path.join(app.config["UPLOAD_FOLDER"],file.filename)
+    file.save(path)
+    
+    hasil = predict_video_file(path)
+    return render_template("index.html", hasil=hasil)
+
+@app.route("/record_predict",methods=["POST"])
+def record_predict():
+    file =request.files.get("video")
+    if not file:
+        return jsonify({
+        "prediction":
+        "Video kosong"
+        })
+    path=os.path.join(app.config["UPLOAD_FOLDER"],file.filename)
+    file.save(path)
+    print("Tersimpan", path)
+    hasil=predict_video_file(path)
+    response={
+    "prediction":hasil}
+    return jsonify(response)
+
 if __name__ == '__main__':
     app.run(debug=True)

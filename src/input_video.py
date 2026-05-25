@@ -18,7 +18,7 @@ def get_name_video(folder, prefix="video_gerakan", ext=".mp4"):
 # inisiasi kamera
 cap = cv2.VideoCapture(0)
 # output directory
-output_dir = '../data/videos'
+output_dir = '../data/uploads'
 os.makedirs(output_dir, exist_ok=True)
 path_video = get_name_video(output_dir)
 # mendefinisikan codec

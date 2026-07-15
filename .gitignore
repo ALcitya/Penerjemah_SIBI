@@ -5,6 +5,10 @@ data/augmented
 data/prep
 data/videos
 data/uploads
+models/sibi_model.keras
+# mengebaikan folder virtual environment
 venv
 # mengabaikan file rahasia
 .env
+# mengabaikan folder uji coba
+banding_notebooks

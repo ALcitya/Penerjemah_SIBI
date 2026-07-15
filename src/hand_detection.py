@@ -5,7 +5,7 @@ mp_hands = mp.solutions.hands
 
 hands = mp_hands.Hands(
     static_image_mode=False,
-    max_num_hands=1,
+    max_num_hands=2,
     min_detection_confidence=0.3,
     min_tracking_confidence=0.3
 )
@@ -25,7 +25,7 @@ def crop_hand_from_frame(frame, target_size=(128,128)):
                 x_list.append(int(lm.x * w))
                 y_list.append(int(lm.y * h))
             # bounding box
-            padding = 20
+            padding = 40
             x_min = max(min(x_list) - padding, 0)
             y_min = max(min(y_list) - padding, 0)
             x_max = min(max(x_list) + padding, w)

@@ -72,10 +72,37 @@ nav a:active{
 .input{
     border:none;
 }
-form button{
-    border-radius: 10%;
-    border: none;
+form{
+    display: flex;
+    flex-direction:row;
+    margin-top:40px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
+form label{
+    color : white;
+    font-size: larger;
+}
+form input{
+    padding: 5px 10px;
+    border-radius:10px;
+    border:2px solid rgb(255, 255, 255);
+    color: black;
+    font-size: medium;
+    background: rgba(255, 255, 255, 0.6);
+}
+form button{
+    padding: 5px 10px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    background-color: rgb(30, 255, 101);
+}
+form button:hover{
+    background: rgba(23, 132, 235, 0.847);
+    backdrop-filter: blur(5px);
+    transform: translateY(-2px);}
  .prediksi{
     padding: 10px;
 }
@@ -115,7 +142,7 @@ video{
     align-items: center;
     display:flex;
     gap:100px;
-    margin: 20px 0;
+    margin: 40px 0;
 }
 .camera-control button{
     width:70px;

@@ -13,9 +13,7 @@ from tensorflow.keras.models import load_model
 from src.extract_frames import extract_frames
 from src.translate_sentences import SentenceTranslator
 
-
 # CONFIG
-VIDEO_PATH = "./data/uploads/video_gerakan_2.mp4"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
 
@@ -23,7 +21,7 @@ model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
 DATASET_PATH = "./data/hands"
 SEQ_LEN = 20
 STEP = 5
-CONFIDENCE_THRESHOLD = 0.03
+CONFIDENCE_THRESHOLD = 0.5
 
 # LOAD MODEL & LABEL
 model = load_model(model_path, compile=False)
@@ -59,39 +57,30 @@ def keep_frequent_words(words, min_count=2):
         if counter[w] >= min_count
     ]
 def remove_duplicates(words):
-
     result = []
     seen = set()
-
+    
     for word in words:
-
         if word not in seen:
-
             result.append(word)
             seen.add(word)
-
     return result
 
 def clean_sentence(words):
-
     # filter kata yang cukup sering muncul
     words = keep_frequent_words(
         words,
         min_count=2
     )
-
     # hapus kata berurutan
     words = remove_consecutive_duplicates(
         words
     )
-
     # hapus kata yang pernah muncul
     words = remove_duplicates(
         words
     )
-
     return words
-
 
 # PREDICTION
 def predict_sequences(sequences):
@@ -115,9 +104,9 @@ def predict_sequences(sequences):
     return results
 
 # MAIN PIPELINE
-def main():
+def main(video_path):
     # 1. extract hand frames
-    frames = extract_frames(VIDEO_PATH)
+    frames = extract_frames(video_path, max_frames=100)
     print(f"\nTotal frame tangan: {len(frames)}")
     if len(frames) < SEQ_LEN:
         print("Frame tidak cukup untuk sequence")
@@ -167,13 +156,11 @@ def predict_video_file(video_path):
     for word in hasil_bersih:
         translator.add_word(word)
         
-    kalimat = " ".join(hasil_bersih)
+    kalimat = translator.get_sentence()
     print("hasil_kata:", hasil_kata)
-
     hasil_bersih = clean_sentence(
     hasil_kata
     )
-
     print("hasil_bersih:", hasil_bersih)
     return kalimat
 

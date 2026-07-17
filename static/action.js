@@ -48,7 +48,8 @@ async function mulaiRekam(){
     mediaRecorder.start()
 }
 function stopRekam(){
-    document.getElementById("stop").style.display="block"
+    document.getElementById("mulai").style.display="block"
+    document.getElementById("stop").style.display="none"
     preview.style.display="none"
 
     if(mediaRecorder && mediaRecorder.state !=="inactive"){

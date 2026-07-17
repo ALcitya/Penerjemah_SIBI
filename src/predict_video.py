@@ -1,12 +1,11 @@
 import os
 from pyparsing import warnings
-# sembunyikan log tensorflow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-# disable oneDNN warning
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-# disable mediapipe warning
 os.environ['GLOG_minloglevel'] = '3'
 warnings.filterwarnings("ignore")
+
+import cv2
 import numpy as np
 from collections import Counter
 from tensorflow.keras.models import load_model
@@ -16,11 +15,11 @@ from src.translate_sentences import SentenceTranslator
 # CONFIG
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
+DATASET_PATH = os.path.join(BASE_DIR, "data", "hands")
 
-# gunakan dataset hasil mediapipe
-DATASET_PATH = "./data/hands"
 SEQ_LEN = 20
-STEP = 5
+DURASI_KATA = 4
+OVERLAP_RATIO = 1/3
 CONFIDENCE_THRESHOLD = 0.5
 
 # LOAD MODEL & LABEL
@@ -31,139 +30,101 @@ labels = sorted([
 ])
 # translator
 translator = SentenceTranslator()
+def get_video_fps(video_path, default_fps=30):
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
+    return fps if fps and fps > 0 else default_fps
 # SLIDING WINDOW
-def sliding_window(frames, seq_len=20, step=5):
+def sliding_window(frames, video_path, seq_len=SEQ_LEN, durasi_kata=DURASI_KATA, overlap_ratio=OVERLAP_RATIO):
+    n = len(frames)
+    fps = get_video_fps(video_path)
+    window_size = max(seq_len, int(round(fps * durasi_kata)))
+    step = max(1, int(window_size * overlap_ratio))
     sequences = []
-    for i in range(0, len(frames) - seq_len + 1, step):
-        seq = frames[i:i + seq_len]
-        if len(seq) == seq_len:
-            sequences.append(seq)
+    
+    if n <= window_size:
+        # video pendek
+        idxs = np.linspace(0, n-1, seq_len).astype(int)
+        sequences.append([frames[i] for i in idxs])
+        return sequences
+    for start in range(0, n - window_size+ 1, step):
+        window = frames[start:start + window_size]
+        # resample agar sama panjangnya
+        idxs = np.linspace(0,len(window)-1, seq_len).astype(int)
+        seq = [window[i] for i in idxs]
+        sequences.append(seq)
     return sequences
 
-# POST PROCESSING
 def remove_consecutive_duplicates(words):
     result = []
-    seen = set()
     for w in words:
-        if w not in seen:
+        if not result or result[-1] != w:
             result.append(w)
-            seen.add(w)
     return result
 
 def keep_frequent_words(words, min_count=2):
     counter = Counter(words)
+    affixes_prefix = ["awalan-", "partikel-", "akhiran-"]
     return [
         w for w in words
-        if counter[w] >= min_count
+        if counter[w] >= min_count or w.startswith(affixes_prefix)
     ]
-def remove_duplicates(words):
-    result = []
-    seen = set()
-    
-    for word in words:
-        if word not in seen:
-            result.append(word)
-            seen.add(word)
-    return result
 
 def clean_sentence(words):
-    # filter kata yang cukup sering muncul
-    words = keep_frequent_words(
-        words,
-        min_count=2
-    )
-    # hapus kata berurutan
-    words = remove_consecutive_duplicates(
-        words
-    )
-    # hapus kata yang pernah muncul
-    words = remove_duplicates(
-        words
-    )
-    return words
-
+    if len(words) == 0:
+        return words
+    cleaned = keep_frequent_words(words, min_count=2)
+    if len(cleaned) == 0:
+        cleaned = words
+    cleaned = remove_consecutive_duplicates(cleaned)
+    return cleaned
 # PREDICTION
 def predict_sequences(sequences):
     results = []
-    for i, seq in enumerate(sequences):
-        seq = np.array(seq, dtype=np.float32)
-        seq = seq / 255.0
-        seq = np.expand_dims(seq, axis=0)
-        pred = model.predict(seq, verbose=0)
-        confidence = float(np.max(pred))
+    batch=np.array(sequences, dtype=np.float32)
+    batch =batch[...,::-1] # convert bgr to rgb
+    batch = batch / 255.0
+    preds = model.predict(batch, verbose=0)
+    
+    for i, pred in enumerate(preds):
+        confidence =float(np.max(pred))
         label_index = int(np.argmax(pred))
         label = labels[label_index]
-        print(
-            f"Sequence {i+1} | "
-            f"Prediksi: {label} | "
-            f"Confidence: {confidence:.4f}"
-        )
-        # filter confidence
+        print(f"Sequence {i+1}: Prediksi: {label}, Confidence: {confidence:.2f}")
         if confidence >= CONFIDENCE_THRESHOLD:
             results.append(label)
     return results
-
-# MAIN PIPELINE
-def main(video_path):
-    # 1. extract hand frames
-    frames = extract_frames(video_path, max_frames=100)
-    print(f"\nTotal frame tangan: {len(frames)}")
-    if len(frames) < SEQ_LEN:
-        print("Frame tidak cukup untuk sequence")
-        return
-
-    # 2. sliding window
-    sequences = sliding_window(
-        frames,
-        seq_len=SEQ_LEN,
-        step=STEP
-    )
-    print(f"Jumlah sequence: {len(sequences)}")
-    if len(sequences) == 0:
-        print("Tidak ada sequence valid")
-        return
-
-    # 3. predict
-    hasil_kata = predict_sequences(sequences)
-    if len(hasil_kata) == 0:
-        print("\nTidak ada prediksi dengan confidence cukup")
-        return
-    # 4. clean sentence
-    hasil_bersih = clean_sentence(hasil_kata)
-    hasil_bersih = translator.combine_affixes(hasil_bersih)
-    for word in hasil_bersih:
-        translator.add_word(word)
-    kalimat = translator.get_sentence()
-
-    print("\nKalimat akhir:")
-    print(kalimat)
 
 def predict_video_file(video_path):
     frames = extract_frames(video_path)
     if len(frames) < SEQ_LEN:
         return "frame tidak cukup"
-    sequences = sliding_window(frames, seq_len=SEQ_LEN, step=STEP)
+    
+    sequences = sliding_window(frames, video_path)
+    print(f"Total sequences: {len(sequences)}")
     if len(sequences) == 0:
         return "tidak ada sequence valid"
+    
     hasil_kata = predict_sequences(sequences)
+    print("hasil_kata:", hasil_kata)
     if len(hasil_kata) == 0:
         return "tidak ada prediksi"
     
     hasil_bersih = clean_sentence(hasil_kata)
+    print("hasil_bersih:", hasil_bersih)
+    
     hasil_bersih = translator.combine_affixes(hasil_bersih)
     translator.reset()
-    
     for word in hasil_bersih:
         translator.add_word(word)
         
-    kalimat = translator.get_sentence()
-    print("hasil_kata:", hasil_kata)
-    hasil_bersih = clean_sentence(
-    hasil_kata
-    )
-    print("hasil_bersih:", hasil_bersih)
-    return kalimat
+    return translator.get_sentence()
 
 # RUN
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) > 1:
+        print(predict_video_file(sys.argv[1]))
+    else:
+        print("Usage: python predict_video.py <video_path>")

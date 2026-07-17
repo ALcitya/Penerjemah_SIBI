@@ -18,8 +18,7 @@ class SentenceTranslator:
             if word.startswith("awalan-"):
                 prefix = word.replace("awalan-", "")
                 if i + 1 < len(words):
-                    combined = prefix + words[i + 1]
-                    hasil.append(combined)
+                    hasil.append(prefix + words[i+1])
                     i += 2
                     continue
 
@@ -27,8 +26,7 @@ class SentenceTranslator:
             elif word.startswith("partikel-"):
                 particle = word.replace("partikel-", "")
                 if i + 1 < len(words):
-                    combined = words[i+1] + particle
-                    hasil.append(combined)
+                    hasil.append(words[i+1] + particle)
                     i += 2
                     continue
             # akhiran

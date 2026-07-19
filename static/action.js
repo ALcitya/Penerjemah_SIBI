@@ -19,9 +19,13 @@ let recordedchunks=[]
 let stream=null
 
 const preview =document.getElementById("preview")
+function setRecordingUI(isRecording){
+    document.getElementById("mulai").style.display = isRecording ? "none":"inline-block"
+    document.getElementById("stop").style.display = isRecording ? "inline-block":"none"
+}
 async function mulaiRekam(){
     preview.style.display="block"
-    document.getElementById("mulai").style.display="none"
+    setRecordingUI(true)
 
     recordedchunks=[]
     stream= await navigator.mediaDevices.getUserMedia({video:true})
@@ -48,8 +52,7 @@ async function mulaiRekam(){
     mediaRecorder.start()
 }
 function stopRekam(){
-    document.getElementById("mulai").style.display="block"
-    document.getElementById("stop").style.display="none"
+    setRecordingUI(false)
     preview.style.display="none"
 
     if(mediaRecorder && mediaRecorder.state !=="inactive"){

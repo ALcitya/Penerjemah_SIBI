@@ -7,6 +7,7 @@ warnings.filterwarnings("ignore")
 
 import cv2
 import numpy as np
+import json
 from collections import Counter
 from tensorflow.keras.models import load_model
 from src.extract_frames import extract_frames
@@ -15,19 +16,17 @@ from src.translate_sentences import SentenceTranslator
 # CONFIG
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
-DATASET_PATH = os.path.join(BASE_DIR, "data", "hands")
+labels_path = os.path.join(BASE_DIR,"data","labels.json")
 
 SEQ_LEN = 20
-DURASI_KATA = 4
+DURASI_KATA = 3
 OVERLAP_RATIO = 1/3
 CONFIDENCE_THRESHOLD = 0.5
 
 # LOAD MODEL & LABEL
 model = load_model(model_path, compile=False)
-labels = sorted([
-    label for label in os.listdir(DATASET_PATH)
-    if os.path.isdir(os.path.join(DATASET_PATH, label))
-])
+with open(labels_path,"r", encoding="utf-8") as f:
+    labels=json.load(f)
 # translator
 translator = SentenceTranslator()
 def get_video_fps(video_path, default_fps=30):
@@ -65,7 +64,7 @@ def remove_consecutive_duplicates(words):
 
 def keep_frequent_words(words, min_count=2):
     counter = Counter(words)
-    affixes_prefix = ["awalan-", "partikel-", "akhiran-"]
+    affixes_prefix = ("awalan-", "partikel-", "akhiran-")
     return [
         w for w in words
         if counter[w] >= min_count or w.startswith(affixes_prefix)

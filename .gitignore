@@ -10,7 +10,5 @@ data/hands
 venv
 # mengabaikan file rahasia
 .env
-# mengabaikan folder uji coba
-banding_notebooks
 # mengabaikan model
 models/sibi_model.keras

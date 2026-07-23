@@ -16,12 +16,12 @@ from src.translate_sentences import SentenceTranslator
 # CONFIG
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
-labels_path = os.path.join(BASE_DIR,"data","labels.json")
+labels_path = os.path.join(BASE_DIR, "models", "labels.json")
 
 SEQ_LEN = 20
 DURASI_KATA = 3
 OVERLAP_RATIO = 1/3
-CONFIDENCE_THRESHOLD = 0.5
+CONFIDENCE_THRESHOLD = 0.1
 
 # LOAD MODEL & LABEL
 model = load_model(model_path, compile=False)

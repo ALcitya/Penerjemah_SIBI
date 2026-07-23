@@ -10,7 +10,7 @@ hands = mp_hands.Hands(
     min_tracking_confidence=0.5
 )
 # crop hand from
-def crop_hand_from_frame(frame, target_size=(128,128), padding=40):
+def crop_hand_from_frame(frame, target_size=(160,160), padding=40):
     frame_rgb = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
     result = hands.process(frame_rgb)
     

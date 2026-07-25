@@ -2,52 +2,142 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Penerjemah Bahasa Isyarat</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penerjemah Bahasa Isyarat SIBI</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 </head>
 <body>
-<div class="container">
-    <nav>
-        <h1>SIBI</h1>
-        <a class="home" href="#">Home</a>
-        <a class="collection" href="collection.html">Collection</a>
-        <a class="contact" href="contact.html">Contact</a> 
-        <div class="button">
-            <!-- <button class="login">Login</button>
-            <button class="signup">Sign Up</button> -->
-        </div>
-    </nav>
-<div class="content">
-        <div class="title-box">
-                <div class="text">
-                    <h1>Penerjemah Bahasa Isyarat SIBI</h1>
+    <div class="background-glow"></div>
+
+    <div class="app-container">
+        <!-- Navigation -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-hands-asl-interpreting"></i>
                 </div>
-                <b>Terjemahkan Video Isyarat Anda Secara Langsung </b>
-                <div class="camera-control">
-                <button id="mulai" type="button">
-                    <i class="fa-solid fa-play fa-beat" style="color: rgb(116, 192, 252);"></i> 
-                </button>
-                <button id="stop" type="button">
-                    <i class="fa-solid fa-stop fa-beat-fade" style="color: rgb(240, 0, 0);"></i>
-                </button>
+                <div class="brand-text">
+                    <span class="brand-title">SIBI</span>
+                    <span class="brand-subtitle">Translator AI</span>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a class="nav-item active" href="#"><i class="fa-solid fa-house"></i> Home</a>
+                <a class="nav-item" href="collection.html"><i class="fa-solid fa-layer-group"></i> Collection</a>
+                <a class="nav-item" href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Header -->
+            <section class="hero-section">
+                <div class="badge-pill">
+                    <span class="pulse-dot"></span> Teknologi Deteksi Isyarat Real-Time
+                </div>
+                <h1 class="hero-title">Penerjemah Bahasa Isyarat <span class="gradient-text">SIBI</span></h1>
+                <p class="hero-subtitle">Terjemahkan gerakan isyarat SIBI secara langsung melalui rekaman kamera atau berkas video.</p>
+            </section>
+
+            <!-- Workspace Studio -->
+            <div class="studio-grid">
+                <!-- Left Panel: Mode Selector & Inputs -->
+                <div class="input-panel card-glass">
+                    <div class="tab-header">
+                        <button class="tab-btn active" id="tab-camera-btn" type="button" onclick="switchTab('camera')">
+                            <i class="fa-solid fa-video"></i> Kamera Langsung
+                        </button>
+                        <button class="tab-btn" id="tab-file-btn" type="button" onclick="switchTab('file')">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Unggah Video
+                        </button>
+                    </div>
+
+                    <!-- Camera Section -->
+                    <div class="tab-content active" id="camera-section">
+                        <div class="camera-viewfinder">
+                            <div class="camera-status-badge" id="camera-status">
+                                <span class="status-indicator"></span>
+                                <span id="camera-status-text">Kamera Siap</span>
+                            </div>
+                            <video id="preview" autoplay muted playsinline></video>
+                            <div class="viewfinder-placeholder" id="viewfinder-placeholder">
+                                <i class="fa-solid fa-camera-rotate placeholder-icon"></i>
+                                <p>Klik "Mulai Rekam" untuk membuka kamera</p>
+                            </div>
+                        </div>
+
+                        <div class="camera-control">
+                            <button id="mulai" class="btn btn-primary" type="button">
+                                <i class="fa-solid fa-play"></i>
+                                <span>Mulai Rekam</span>
+                            </button>
+                            <button id="stop" class="btn btn-danger" type="button" style="display: none;">
+                                <i class="fa-solid fa-stop"></i>
+                                <span>Hentikan Rekam</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div class="tab-content" id="file-section">
+                        <form id="UploadForm" action="/record_predict" method="POST" enctype="multipart/form-data">
+                            <div class="upload-dropzone" id="dropzone">
+                                <i class="fa-solid fa-file-video upload-icon"></i>
+                                <h3>Pilih atau Seret Berkas Video</h3>
+                                <p class="upload-hint">Format yang didukung: MP4, WEBM, AVI, MOV (Maks 50MB)</p>
+                                <div class="file-select-wrapper">
+                                    <label for="videoUpload" class="btn btn-secondary">
+                                        <i class="fa-solid fa-folder-open"></i> Cari Berkas
+                                    </label>
+                                    <input type="file" id="videoUpload" name="video" accept="video/*" required>
+                                </div>
+                                <span class="file-name-display" id="fileNameDisplay">Belum ada berkas dipilih</span>
+                            </div>
+                            <button type="submit" class="btn btn-submit" id="btnUploadSubmit">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>Proses & Prediksi</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
-                <form id="UploadForm" action="/record_predict" method="POST" enctype="multipart/form-data">
-                    <label for="videoUpload">Masukkan video: </label>
-                    <input type="file" id="videoUpload" name="video" accept="video/*" required>
-                    <button type="submit">Prediksi</button>
-                </form>
-                <div class="camera-box">
-                    <video id="preview" autoplay muted width="400"></video>
+                <!-- Right Panel: Output & Results -->
+                <div class="output-panel card-glass">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-square-poll-vertical"></i> Hasil Prediksi</h2>
+                        <span class="live-badge"><i class="fa-solid fa-bolt"></i> AI Output</span>
+                    </div>
+
+                    <div class="result-box">
+                        <div class="result-placeholder" id="result-placeholder">
+                            <i class="fa-solid fa-comment-dots placeholder-icon"></i>
+                            <p>Hasil terjemahan akan muncul di sini setelah video diproses.</p>
+                        </div>
+                        <p id="hasil-prediksi"></p>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="btn-icon" title="Salin Teks" id="copyResultBtn" onclick="copyResultText()">
+                            <i class="fa-solid fa-copy"></i> Salin Terjemahan
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="result-box">
-                <h2>Hasil Prediksi:</h2>
-                <p id="hasil-prediksi"></p>
-            </div>
-        </div>
-</div>
-<script src="{{url_for('static', filename='action.js')}}"></script>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 SIBI Sign Language Translator. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="{{url_for('static', filename='action.js')}}"></script>
 </body>
 </html>

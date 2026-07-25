@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontak - Penerjemah SIBI</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <div class="app-container">
+        <!-- Navigation -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-hands-asl-interpreting"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">SIBI</span>
+                    <span class="brand-subtitle">Translator AI</span>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a class="nav-item" href="/"><i class="fa-solid fa-house"></i> Home</a>
+                <a class="nav-item" href="collection.html"><i class="fa-solid fa-layer-group"></i> Collection</a>
+                <a class="nav-item active" href="contact.html"><i class="fa-solid fa-envelope"></i> Contact</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section class="hero-section">
+                <h1 class="hero-title">Hubungi <span class="gradient-text">Kami</span></h1>
+                <p class="hero-subtitle">Informasi kontak dan dukungan pengembang sistem penerjemah SIBI.</p>
+            </section>
+
+            <div class="card-glass" style="padding: 40px; text-align: center;">
+                <i class="fa-solid fa-paper-plane" style="font-size: 48px; color: var(--accent-blue); margin-bottom: 16px;"></i>
+                <h2>Kontak Pengembang</h2>
+                <p style="color: var(--text-sub); margin-top: 8px;">Kirim masukan atau pertanyaan terkait pengembangan aplikasi ini.</p>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2026 SIBI Sign Language Translator. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

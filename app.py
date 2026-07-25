@@ -10,11 +10,22 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "data", "uploads")
 ALLOWED_EXT = {".webm", ".mp4", ".avi", ".mov"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 50 *1024 *1024  # 50 MB
 
 @app.route('/', methods=['GET'])
 def home():
     return render_template("index.html", hasil="")
+
+@app.route('/collection.html', methods=['GET'])
+def collection():
+    return render_template("collection.html")
+
+@app.route('/contact.html', methods=['GET'])
+def contact():
+    return render_template("contact.html")
+
 
 @app.route("/record_predict",methods=["POST"])
 def record_predict():

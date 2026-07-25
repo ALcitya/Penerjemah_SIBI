@@ -7,8 +7,10 @@ data/videos
 data/uploads
 data/hands
 # mengebaikan folder virtual environment
-venv
+venv/
 # mengabaikan file rahasia
 .env
-# mengabaikan model
+# mengecualikan model yang besar
 models/sibi_model.keras
+__pycache__
+*.pyc

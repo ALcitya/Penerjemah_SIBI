@@ -1,9 +1,7 @@
 import os
-from pyparsing import warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ['GLOG_minloglevel'] = '3'
-warnings.filterwarnings("ignore")
 
 import cv2
 import numpy as np

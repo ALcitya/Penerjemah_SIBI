@@ -6,8 +6,8 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
     static_image_mode=True,
     max_num_hands=2,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
+    min_detection_confidence=0.1,
+    min_tracking_confidence=0.1
 )
 # crop hand from
 def crop_hand_from_frame(frame, target_size=(160,160), padding=40):

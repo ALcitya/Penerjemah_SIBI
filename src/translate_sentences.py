@@ -22,13 +22,6 @@ class SentenceTranslator:
                     i += 2
                     continue
 
-            # partikel
-            elif word.startswith("partikel-"):
-                particle = word.replace("partikel-", "")
-                if i + 1 < len(words):
-                    hasil.append(words[i+1] + particle)
-                    i += 2
-                    continue
             # akhiran
             elif word.startswith("akhiran-"):
                 suffix = word.replace("akhiran-", "")

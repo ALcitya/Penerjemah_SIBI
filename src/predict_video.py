@@ -6,20 +6,38 @@ os.environ['GLOG_minloglevel'] = '3'
 import cv2
 import numpy as np
 import json
+import gdown
+import tensorflow as tf
 from collections import Counter
 from tensorflow.keras.models import load_model
 from src.extract_frames import extract_frames
 from src.translate_sentences import SentenceTranslator
 
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
 # CONFIG
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-model_path = os.path.join(BASE_DIR, "models", "sibi_model.keras")
 labels_path = os.path.join(BASE_DIR, "models", "labels.json")
+
+MODEL_DIR = os.environ.get("MODEL_DIR", "/data")  # fallback ke /data kalau env var gak diset
+model_path = os.path.join(MODEL_DIR, "sibi_model.keras")
+MODEL_FILE_ID = "10jZ4WS4_OT5EeUEqrOHVVxogrTx1IfWL"
+
+def ensure_model():
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    if not os.path.exists(model_path):
+        print("Model belum ada di volume, downloading dari Google Drive...")
+        gdown.download(id=MODEL_FILE_ID, output=model_path, quiet=False)
+        print("Download model selesai.")
+    else:
+        print("Model sudah ada di volume, skip download.")
+
+ensure_model()
 
 SEQ_LEN = 20
 DURASI_KATA = 3
 OVERLAP_RATIO = 1/3
-CONFIDENCE_THRESHOLD = 0.1
+CONFIDENCE_THRESHOLD = 0.3
 
 # LOAD MODEL & LABEL
 model = load_model(model_path, compile=False)
@@ -62,7 +80,7 @@ def remove_consecutive_duplicates(words):
 
 def keep_frequent_words(words, min_count=2):
     counter = Counter(words)
-    affixes_prefix = ("awalan-", "partikel-", "akhiran-")
+    affixes_prefix = ("awalan-", "akhiran-")
     return [
         w for w in words
         if counter[w] >= min_count or w.startswith(affixes_prefix)
@@ -77,20 +95,24 @@ def clean_sentence(words):
     cleaned = remove_consecutive_duplicates(cleaned)
     return cleaned
 # PREDICTION
-def predict_sequences(sequences):
+def predict_sequences(sequences, batch_size=2):
     results = []
-    batch=np.array(sequences, dtype=np.float32)
-    batch =batch[...,::-1] # convert bgr to rgb
-    batch = batch / 255.0
-    preds = model.predict(batch, verbose=0)
-    
-    for i, pred in enumerate(preds):
-        confidence =float(np.max(pred))
-        label_index = int(np.argmax(pred))
-        label = labels[label_index]
-        print(f"Sequence {i+1}: Prediksi: {label}, Confidence: {confidence:.2f}")
-        if confidence >= CONFIDENCE_THRESHOLD:
-            results.append(label)
+    for i in range(0, len(sequences), batch_size):
+        chunk = sequences[i:i + batch_size]
+        batch=np.array(chunk, dtype=np.float32)
+        batch =batch[...,::-1] # convert bgr to rgb
+        batch = batch / 255.0
+        preds = model.predict(batch, verbose=0)
+        
+        for j, pred in enumerate(preds):
+            confidence =float(np.max(pred))
+            label_index = int(np.argmax(pred))
+            label = labels[label_index]
+            print(f"Sequence {i+j+1}: Prediksi: {label}, Confidence: {confidence:.2f}")
+            if confidence >= CONFIDENCE_THRESHOLD:
+                results.append(label)
+                
+        del batch
     return results
 
 def predict_video_file(video_path):

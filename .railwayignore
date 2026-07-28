@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+notebook/
+.vscode/
+models/sibi_model.keras

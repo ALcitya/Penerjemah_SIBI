@@ -1,16 +1,14 @@
-# mengabaikan folder data
-data/processed
-data/raw
-data/augmented
-data/prep
-data/videos
-data/uploads
-data/hands
+# mengabaikan data
+data/ 
 # mengebaikan folder virtual environment
 venv/
 # mengabaikan file rahasia
 .env
-# mengecualikan model yang besar
+# Model besar (>100MB), dikecualikan dari GitHub dan Railway upload.
+# Didownload otomatis dari Google Drive saat container start (lihat predict_video.py: ensure_model()).
 models/sibi_model.keras
 __pycache__
 *.pyc
+# kecualiakan ssh key
+q
+q.pub
